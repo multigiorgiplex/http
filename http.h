@@ -23,7 +23,6 @@ int _http_debug;
 */
 void http_initialize(int debug);
 
-
 /*	Analizza una request HTTP compresa di header partendo da un buffer
  *	Argomenti:
  * 		r:		Buffer in cui e' locata la request
@@ -52,6 +51,13 @@ int http_parse_request (char *r, char *t, char *f, char *a);
 */
 int http_get_file (char *path, char *b);
 
+/*	Genera una richesta GET HTTP
+ * 	Argomenti:
+ * 		f:		File da richiedere (se NULL viene richiesto /)
+ * 		b:		Buffer su cui scrivere la richiesta
+*/
+// servirà Host:?
+void http_gen_GETrequest (char *f, char *b);
 
 
 

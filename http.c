@@ -187,6 +187,23 @@ int http_get_file (char *path, char *b)
 }
 
 
+void http_gen_GETrequest (char *f, char *b)
+{
+	//int l;
+	char uri[HTTP_REQUEST_FILE_LEN];
+
+	uri[0] = '/';
+	if (f == NULL)
+		uri[1] = 0;
+	else
+		strcpy (uri+1, f);
+		//Terminatore?
+
+	// Secondo RFC2616 5.1
+	//Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
+	sprintf (b, "GET %s HTTP/1.1\r\n", uri);
+	//Terminatore?
+}
 
 
 
