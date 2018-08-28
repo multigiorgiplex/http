@@ -1,11 +1,15 @@
 #include <stdio.h>
-#include <multigiorgiplex/http.h>
+//#include <multigiorgiplex/http.h>
+#include "../http.h"
 
 void main()
 {
-    char asd[59];
+    char asd[100];
+    char head[100];
+    char host[] = "www.theansweris42.com";
 
-    http_gen_GETrequest("", asd);
+	http_gen_GETheader (host, head);
+    http_gen_GETrequest("un.pdf", asd, head);
 
-    printf ("%s\n", asd);
+    printf ("|%s|", asd);
 }
