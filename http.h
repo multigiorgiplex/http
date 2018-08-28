@@ -53,13 +53,19 @@ int http_get_file (char *path, char *b);
 
 /*	Genera una richesta GET HTTP
  * 	Argomenti:
- * 		f:		File da richiedere (se NULL viene richiesto /)
- * 		b:		Buffer su cui scrivere la richiesta
+ * 		file_requested:		File da richiedere (se NULL viene richiesto /)
+ * 		output_buffer:		Buffer su cui scrivere la richiesta
+ * 		headers_buffer:		Headers generati da http_gen_GETheader() da copiare nella richiesta (può essere NULL)
 */
 // servirà Host:?
-void http_gen_GETrequest (char *f, char *b);
+void http_gen_GETrequest (char *file_requested, char *output_buffer, char *headers_buffer);
 
-
+/*	Genera un header valido per http_gen_GETrequest()
+ * 	Argomenti:
+ * 		host:				L'hostname da riportare nella richiesta
+ * 		output_buffer:		Buffer su cui scrivere gli header
+*/
+void http_gen_GETheader (char *host, char *output_buffer);
 
 
 

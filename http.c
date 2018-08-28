@@ -187,26 +187,38 @@ int http_get_file (char *path, char *b)
 }
 
 
-void http_gen_GETrequest (char *f, char *b)
+void http_gen_GETrequest (char *file_requested, char *output_buffer, char *headers_buffer)
 {
-	//int l;
+	size_t str_lenght;
 	char uri[HTTP_REQUEST_FILE_LEN];
 
 	uri[0] = '/';
-	if (f == NULL)
+	if (file_requested == NULL)
 		uri[1] = 0;
 	else
-		strcpy (uri+1, f);
+		strcpy (uri+1, file_requested);
 		//Terminatore?
 
 	// Secondo RFC2616 5.1
 	//Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
-	sprintf (b, "GET %s HTTP/1.1\r\n", uri);
+	sprintf (output_buffer, "GET %s HTTP/1.1\r\n", uri);
 	//Terminatore?
+
+	if (headers_buffer == NULL)
+		return;
+
+	strcat (output_buffer, headers_buffer);
+	str_lenght = strlen (output_buffer);
+	*(output_buffer+str_lenght  ) = '\r';
+	*(output_buffer+str_lenght+1) = '\n';
+	*(output_buffer+str_lenght+2) = '\0';
 }
 
 
-
+void http_gen_GETheader (char *host, char *output_buffer)
+{
+	sprintf (output_buffer, "Host: %s\r\n", host);
+}
 
 
 
