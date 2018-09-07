@@ -11,5 +11,9 @@ void main()
 	http_gen_GETheader (host, head);
     http_gen_GETrequest("un.pdf", asd, head);
 
-    printf ("|%s|", asd);
+    printf ("|%s|\n", asd);
+    
+    http_gen_GETresponse (asd, "test", 200, 1, 42, "the answer is always 42!");
+    printf ("|%s|\n", asd);
+    
 }
