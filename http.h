@@ -11,6 +11,9 @@
 #define HTTP_REQUEST_FILE_LEN	100		// Lunghezza massima file richiesto HTTP
 #define	HTTP_FILE_MAX_LEN 		65535	// Lunghezza massima del file da inviare
 
+#define HTTP_RESPONSE_200	"HTTP/1.1 200 OK\r\n"
+#define HTTP_RESPONSE_404	"HTTP/1.1 404 Not Found\r\n"
+
 int _http_flag_init = 0;
 int _http_debug;
 
@@ -67,6 +70,8 @@ void http_gen_GETrequest (char *file_requested, char *output_buffer, char *heade
 */
 void http_gen_GETheader (char *host, char *output_buffer);
 
+
+void http_gen_GETresponse (char *output_buffer, char *server_name, unsigned response_code, char connection_closed, unsigned content_lenght, char *content_buffer);
 
 
 void _http_buffer_dump (char *b, ssize_t l);

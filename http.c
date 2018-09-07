@@ -220,7 +220,32 @@ void http_gen_GETheader (char *host, char *output_buffer)
 }
 
 
-
+void http_gen_GETresponse (char *output_buffer, char *server_name, unsigned response_code, char connection_closed, unsigned content_lenght, char *content_buffer)
+{
+	size_t len = 0;
+		
+	switch (response_code)
+	{
+		case 200:
+			len += sprintf (output_buffer+len, HTTP_RESPONSE_200);
+			break;
+		case 404:
+			len += sprintf (output_buffer+len, HTTP_RESPONSE_404);
+			break;
+	}
+	
+	len += sprintf (output_buffer+len, "Server: %s\r\n", server_name);
+	
+	if (connection_closed)
+		len += sprintf (output_buffer+len, "Connection: Closed\r\n");
+	
+	len += sprintf (output_buffer+len, "Content-Lenght: %u\r\n", content_lenght);
+	
+	if (content_lenght > 0 && content_buffer != NULL)
+		len += sprintf (output_buffer+len, "\r\n%s", content_buffer);
+	
+	sprintf (output_buffer+len, "\r\n");
+}
 
 
 
