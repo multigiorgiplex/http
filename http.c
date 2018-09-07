@@ -15,7 +15,7 @@ void http_initialize (int debug)
 	}
 }
 
-int http_parse_request (char *r, char *t, char *f, char *a)
+int http_parse_request (char *request_buffer, char *request_type, char *requested_file, char *request_arguments)
 {
 	char *split;
 	char *split2;
@@ -30,13 +30,13 @@ int http_parse_request (char *r, char *t, char *f, char *a)
 	}
 	
 	//Azzero i buffer
-	memset (t, 0, 5);
-	memset (f, 0, HTTP_REQUEST_FILE_LEN);
-	memset (a, 0, 100);	
+	memset (request_type, 0, 5);
+	memset (requested_file, 0, HTTP_REQUEST_FILE_LEN);
+	memset (request_arguments, 0, 100);	
 	
-	if (_http_debug >= 2) printf ("[" __FILE__ "] i! HTTP Header:\n%s\n", r);
+	if (_http_debug >= 2) printf ("[" __FILE__ "] i! HTTP Header:\n%s\n", request_buffer);
 
-	split = strchr (r, '\r');
+	split = strchr (request_buffer, '\r');
 	if (split == NULL)
 	{
 		fprintf (stderr, "[" __FILE__ ":%u] E! Request invalida! [E-1]\n", __LINE__);
@@ -44,12 +44,12 @@ int http_parse_request (char *r, char *t, char *f, char *a)
 	}
 	*split = 0;
 	
-	if (_http_debug) printf ("[" __FILE__ "] i! HTTP Request: %s\n", r);	// r = "GET /file.asd HTTP/1.1"
+	if (_http_debug) printf ("[" __FILE__ "] i! HTTP Request: %s\n", request_buffer);
 
 		// Trova il primo spazio e lo sostituisce con un fine stringa
 		// 		"GET /file.asd HTTP/1.1"
 		//			↑	
-		split2 = strchr (r, ' ');
+		split2 = strchr (request_buffer, ' ');
 		if (split2 == NULL)
 		{
 			fprintf (stderr, "[" __FILE__ ":%u] E! Request invalida! [E-2]\n", __LINE__);
@@ -58,7 +58,7 @@ int http_parse_request (char *r, char *t, char *f, char *a)
 		*split2 = 0;
 
 		// Copia la stringa in t fino al fine stringa
-		cpy = memccpy (t, r, 0, 5);
+		cpy = memccpy (request_type, request_buffer, 0, 5);
 		if (cpy == NULL)
 		{
 			fprintf (stderr, "[" __FILE__ ":%u] E! Request invalida! [E-3]\n", __LINE__);
@@ -68,7 +68,7 @@ int http_parse_request (char *r, char *t, char *f, char *a)
 		// Copia in f dal carattere dopo il fine stringa fino allo spazio
 		// 		"GET /file.asd HTTP/1.1"
 		//			 →		  ↑	
-		cpy = memccpy (f, split2+1, ' ', HTTP_REQUEST_FILE_LEN);
+		cpy = memccpy (requested_file, split2+1, ' ', HTTP_REQUEST_FILE_LEN);
 		if (cpy == NULL)
 		{
 			fprintf (stderr, "[" __FILE__ ":%u] E! Request invalida! [E-4]\n", __LINE__);
@@ -76,19 +76,18 @@ int http_parse_request (char *r, char *t, char *f, char *a)
 		}
 		*(cpy-1) = 0;
 	
-	//Controllo se ci sono argomenti di tipo GET
-	split2 = strchr (f, '?');
-	if (split2 != NULL)	//Ci sono argomenti GET
-	{
-		memccpy (a, split2+1, 0, 100);
-		memset (split2, 0, strlen (split2));	//pulisco il buffer file
-	}
 
-	if (!memcmp (t, "GET\0", 5))	// Se e' una richiesta GET
+	if (!memcmp (request_type, "GET\0", 5))	// Se e' una richiesta GET
 	{
-		;
+		//Controllo se ci sono argomenti
+		split2 = strchr (requested_file, '?');
+		if (split2 != NULL)	//Ci sono argomenti GET
+		{
+			memccpy (request_arguments, split2+1, 0, 100);
+			memset (split2, 0, strlen (split2));	//pulisco il buffer file
+		}
 	}
-	else if (!memcmp (t, "POST\0", 5))	// Se e' una richiesta GET
+	else if (!memcmp (request_type, "POST\0", 5))	// Se e' una richiesta POST
 	{
 		//	ANALIZZO IL RESTO DELL'HEADER REQUEST
 		while (split != NULL)
@@ -97,7 +96,7 @@ int http_parse_request (char *r, char *t, char *f, char *a)
 			split = strchr (str, '\r');
 			//if (split != NULL) *split = 0;
 		}
-		memccpy (a, str, 0, 100);
+		memccpy (request_arguments, str, 0, 100);
 	}
 	else
 	{

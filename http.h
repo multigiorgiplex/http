@@ -25,10 +25,10 @@ void http_initialize(int debug);
 
 /*	Analizza una request HTTP compresa di header partendo da un buffer
  *	Argomenti:
- * 		r:		Buffer in cui e' locata la request
- * 		t:		Buffer su cui salvare il tipo di request "GET", "POST" ...
- * 		f:		Buffer su cui viene salvato il file richiesto dalla request "/index.html"
- * 		a:		Buffer su cui vengono salvati gli argomenti GET o POST
+ * 		*request_buffer:		Buffer in cui e' locata la request
+ * 		*request_type:			Buffer su cui salvare il tipo di request "GET", "POST" ...
+ * 		*requested_file:		Buffer su cui viene salvato il file richiesto dalla request "/index.html"
+ * 		*request_argumetns:		Buffer su cui vengono salvati gli argomenti GET o POST
  * 	Ritorno:
  * 		0:		request correttamente analizzata
  * 		-1:		Request invalida: la richiesta non contiene ritorni a capo
@@ -37,7 +37,7 @@ void http_initialize(int debug);
  * 		-4:		Request invalida: filename richiesto supera HTTP_REQUEST_FILE_LEN caratteri
  *		-5:		Metodo request non supportato
 */
-int http_parse_request (char *r, char *t, char *f, char *a);
+int http_parse_request (char *request_buffer, char *request_type, char *requested_file, char *request_arguments);
 
 /*	Cerca e legge il file richiesto
  * 	Argomenti:
