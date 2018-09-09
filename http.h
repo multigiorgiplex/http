@@ -1,8 +1,11 @@
 #ifndef _HTTP_H
 	#define _HTTP_H
 
+#define _GNU_SOURCE		//for mempcpy()
+
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <errno.h>  	//funzione per la gestione degli errori
 	#include <sys/types.h>	//stat
 	#include <sys/stat.h>
@@ -10,12 +13,45 @@
 
 #define HTTP_REQUEST_FILE_LEN	100		// Lunghezza massima file richiesto HTTP
 #define	HTTP_FILE_MAX_LEN 		65535	// Lunghezza massima del file da inviare
+#define HTTP_HEADER_FIELD_LEN	100		// Lunghezza massima dei FILED degli header
+#define HTTP_ARGUMENTS_LEN		100		// Lunghezza massima del buffer degli argomenti
 
 #define HTTP_RESPONSE_200	"HTTP/1.1 200 OK\r\n"
 #define HTTP_RESPONSE_404	"HTTP/1.1 404 Not Found\r\n"
 
 int _http_flag_init = 0;
 int _http_debug;
+
+struct http_headers
+{
+	//	general-header	(RFC2616 - 4.5)
+	short unsigned connection;	//0 = Keep alive, 1 = Closed
+	
+	//	request-header	(RFC2616 - 5.3)
+	char host[HTTP_HEADER_FIELD_LEN];
+
+	//	response-header	(RFC2616 - 6.2)
+	char server[HTTP_HEADER_FIELD_LEN];
+	char www_authenticate[HTTP_HEADER_FIELD_LEN];
+	
+	//	entity-header	(RFC2616 - 7.1)
+	unsigned content_lenght;		
+};
+
+struct http_request
+{
+	char method[8];
+	char filename[HTTP_ARGUMENTS_LEN];
+	struct http_headers headers;	
+	char arguments[HTTP_ARGUMENTS_LEN];
+};
+
+struct http_response
+{
+	char method[8];
+	struct http_headers headers;
+	char *content_buffer;
+};
 
 /*	Inizializza la libreria
  *	Argomenti:
@@ -28,19 +64,15 @@ void http_initialize(int debug);
 
 /*	Analizza una request HTTP compresa di header partendo da un buffer
  *	Argomenti:
- * 		*request_buffer:		Buffer in cui e' locata la request
- * 		*request_type:			Buffer su cui salvare il tipo di request "GET", "POST" ...
- * 		*requested_file:		Buffer su cui viene salvato il file richiesto dalla request "/index.html"
- * 		*request_argumetns:		Buffer su cui vengono salvati gli argomenti GET o POST
+ * 		*request_buffer:	Buffer in cui e' locata la request
+ * 		*request:			Struttura dati in cui inserire i dati della request
  * 	Ritorno:
  * 		0:		request correttamente analizzata
- * 		-1:		Request invalida: la richiesta non contiene ritorni a capo
- * 		-2:		Request invalida: la prima riga "GET / HTTP/1.1" non contiene spazi
- * 		-3:		Request invalida: metodo HTTP lungo piu' di 5 caratteri
- * 		-4:		Request invalida: filename richiesto supera HTTP_REQUEST_FILE_LEN caratteri
- *		-5:		Metodo request non supportato
+ * 		-1:		Libreria non inizializzata
+ * 		-2:		Request invalida
+ * 		-3:		Metodo non supportato
 */
-int http_parse_request (char *request_buffer, char *request_type, char *requested_file, char *request_arguments);
+int http_parse_request (char *request_buffer, struct http_request *request);
 
 /*	Cerca e legge il file richiesto
  * 	Argomenti:
