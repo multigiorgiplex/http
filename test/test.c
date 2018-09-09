@@ -1,19 +1,31 @@
 #include <stdio.h>
+#include <string.h>
 //#include <multigiorgiplex/http.h>
 #include "../http.h"
 
 void main()
 {
-    char asd[100];
-    char head[100];
-    char host[] = "www.theansweris42.com";
+	struct http_request request;
+	//char request_buffer[] = "GET /index.html?method=get HTTP/1.1\r\nHost: theansweris42.com\r\nConnection: Closed\r\n\r\n";
+	char request_buffer[] = "POST /index.html HTTP/1.1\r\nHost: theansweris42.com\r\nConnection: Closed\r\nContent-Lenght: 11\r\n\r\nmethod=post\r\n";
 
-	http_gen_GETheader (host, head);
-    http_gen_GETrequest("un.pdf", asd, head);
+	http_initialize (2);
 
-    printf ("|%s|\n", asd);
-    
-    http_gen_GETresponse (asd, "test", 200, 1, 42, "the answer is always 42!");
-    printf ("|%s|\n", asd);
+	http_parse_request (request_buffer, &request);
+
+	printf ("\
+		Method:		%s\n\
+		File:		%s\n\
+		Host:		%s\n\
+		Content-Lenght:	%u\n\
+		Arguments:	%s\n",
+
+		request.method,
+		request.filename,
+		request.headers.host,
+		request.headers.content_lenght,
+		request.arguments
+	);
+	
     
 }
