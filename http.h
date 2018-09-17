@@ -3,6 +3,14 @@
 
 #define _GNU_SOURCE		//for mempcpy()
 
+#ifdef __i386__
+	#define _PRINTF_SSIZE_T	"%d"
+#endif
+#ifdef __amd64__
+	#define _PRINTF_SSIZE_T	"%lu"
+#endif
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -16,8 +24,14 @@
 #define HTTP_HEADER_FIELD_LEN	100		// Lunghezza massima dei FILED degli header
 #define HTTP_ARGUMENTS_LEN		100		// Lunghezza massima del buffer degli argomenti
 
-#define HTTP_RESPONSE_200	"HTTP/1.1 200 OK\r\n"
-#define HTTP_RESPONSE_404	"HTTP/1.1 404 Not Found\r\n"
+#define HTTP_VERSION		"HTTP/1.1"
+
+//	RFC2612 - 6.1.1
+#define HTTP_REASON_PHRASE_200	"OK"
+#define HTTP_REASON_PHRASE_404	"Not Found"
+
+#define HTTP_RESPONSE_200	"HTTP/1.1 200 OK\r\n"	//deprecato
+#define HTTP_RESPONSE_404	"HTTP/1.1 404 Not Found\r\n"	//deprecato
 
 int _http_flag_init = 0;
 int _http_debug;
@@ -35,7 +49,7 @@ struct http_headers
 	char www_authenticate[HTTP_HEADER_FIELD_LEN];
 	
 	//	entity-header	(RFC2616 - 7.1)
-	unsigned content_lenght;		
+	unsigned content_lenght;	
 };
 
 struct http_request
@@ -48,9 +62,10 @@ struct http_request
 
 struct http_response
 {
-	char method[8];
+	//char method[8];	non dovrebbe servire
+	unsigned status_code;
 	struct http_headers headers;
-	char *content_buffer;
+	char *message_body;
 };
 
 /*	Inizializza la libreria
@@ -73,6 +88,8 @@ void http_initialize(int debug);
  * 		-3:		Metodo non supportato
 */
 int http_parse_request (char *request_buffer, struct http_request *request);
+
+int http_generate_response (char *response_buffer, struct http_response response);
 
 /*	Cerca e legge il file richiesto
  * 	Argomenti:

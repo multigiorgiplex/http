@@ -139,6 +139,67 @@ int http_parse_request (char *request_buffer, struct http_request *request)
 	return 0;
 }
 
+int http_generate_response (char *response_buffer, struct http_response response)
+{
+	char string[HTTP_HEADER_FIELD_LEN+10];
+	
+/*	RFC2616 - 6
+Response	= Status-Line
+			*(( general-header
+			 | response-header
+			 | entity-header ) CRLF)
+			CRLF
+			[ message-body ]
+*/
+
+/*	RFC2616 - 6.1
+	Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+*/
+	if (!_http_flag_init)
+	{
+		fprintf (stderr, "[" __FILE__ ":%u] E! Libreria non inizializzata\n", __LINE__);
+		return -1;
+	}
+
+	switch (response.status_code)
+	{
+		case 200:
+			strcpy (string, HTTP_REASON_PHRASE_200);
+			break;
+		case 404:
+			strcpy (string, HTTP_REASON_PHRASE_404);
+			break;
+		default:
+			if (_http_debug) fprintf (stderr, "[" __FILE__ ":%u] E! Status-Code %u non implementato!\n", __LINE__, response.status_code);
+			return -1;
+	}
+	
+
+	sprintf (response_buffer, "%s %u %s\r\n", HTTP_VERSION, response.status_code, string);
+
+	if (response.headers.connection)
+		strcat (response_buffer, "Connection: close\r\n");
+
+	if (response.headers.host[0] != 0)
+	{
+		sprintf (string, "Host: %s\r\n", response.headers.host);
+		strcat (response_buffer, string);
+	}
+
+	if (response.message_body != NULL)
+	{
+		sprintf (string, "Content-Lenght: " _PRINTF_SSIZE_T "\r\n", strlen (response.message_body));
+		strcat (response_buffer, string);
+	}
+
+	strcat (response_buffer, "\r\n");
+	
+	if (response.message_body != NULL)
+		strcat (response_buffer, response.message_body);
+	
+	return 0;
+}
+
 int http_get_file (char *path, char *b)
 {
 	struct stat s;
