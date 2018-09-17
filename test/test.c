@@ -6,8 +6,10 @@
 void main()
 {
 	struct http_request request;
+	struct http_response response;
 	//char request_buffer[] = "GET /index.html?method=get HTTP/1.1\r\nHost: theansweris42.com\r\nConnection: Closed\r\n\r\n";
 	char request_buffer[] = "POST /index.html HTTP/1.1\r\nHost: theansweris42.com\r\nConnection: Closed\r\nContent-Lenght: 11\r\n\r\nmethod=post\r\n";
+	char response_buffer[1024];
 
 	http_initialize (2);
 
@@ -27,5 +29,13 @@ void main()
 		request.arguments
 	);
 	
+    response.status_code = 200;
+    strcpy (response.headers.host, request.headers.host);
+    response.headers.connection = 0;
+    response.message_body = request_buffer;
+
+	http_generate_response (response_buffer, response);
+
+	printf ("Response generata:\n%s", response_buffer);
     
 }
