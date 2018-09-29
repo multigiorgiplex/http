@@ -200,6 +200,58 @@ Response	= Status-Line
 	return 0;
 }
 
+int http_generate_request (char *request_buffer, struct http_request request)
+{
+/*	RFC2616 - 5
+Request = Request-Line              ; Section 5.1
+		*(( general-header        ; Section 4.5
+		 | request-header         ; Section 5.3
+		 | entity-header ) CRLF)  ; Section 7.1
+		CRLF
+		[ message-body ]
+*/
+//	RFC2616 - 5.1	Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
+
+	char string[HTTP_HEADER_FIELD_LEN+8];
+
+	if (!_http_flag_init)
+	{
+		fprintf (stderr, "[" __FILE__ ":%u] E! Libreria non inizializzata\n", __LINE__);
+		return -1;
+	}
+
+	if (request.method == NULL)
+	{
+		fprintf (stderr, "[" __FILE__ ":%u] E! Struttura request malformata [E-1]\n", __LINE__);
+		return -1;
+	}
+	if (request.uri == NULL)
+	{
+		fprintf (stderr, "[" __FILE__ ":%u] E! Struttura request malformata [E-2]\n", __LINE__);
+		return -2;
+	}
+
+	sprintf (request_buffer, "%s %s " HTTP_VERSION "\r\n", request.method, request.uri);
+
+	if (request.headers.connection)
+		strcat (request_buffer, "Connection: close\r\n");
+
+	if (request.headers.host != NULL && strlen (request.headers.host) > 0)
+	{
+		sprintf (string, "Host: %s\r\n", request.headers.host);
+		strcat (request_buffer, string);
+	}
+
+	if (request.message_body != NULL)
+	{
+		sprintf (string, "Content-Lenght: " _PRINTF_SSIZE_T "\r\n\r\n", strlen (request.message_body));
+		strcat (request_buffer, string);
+		strcat (request_buffer, request.message_body);
+	}
+
+	return 0;
+}
+
 int http_get_file (char *path, char *b)
 {
 	struct stat s;

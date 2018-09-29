@@ -90,6 +90,7 @@ void http_initialize(int debug);
 int http_parse_request (char *request_buffer, struct http_request *request);
 
 int http_generate_response (char *response_buffer, struct http_response response);
+int http_generate_request (char *request_buffer, struct http_request request);
 
 /*	Cerca e legge il file richiesto
  * 	Argomenti:
