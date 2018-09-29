@@ -21,7 +21,7 @@
 
 #define HTTP_REQUEST_FILE_LEN	100		// Lunghezza massima file richiesto HTTP
 #define	HTTP_FILE_MAX_LEN 		65535	// Lunghezza massima del file da inviare
-#define HTTP_HEADER_FIELD_LEN	100		// Lunghezza massima dei FILED degli header
+#define HTTP_HEADER_FIELD_LEN	100		// Lunghezza massima dei FIELD degli header
 #define HTTP_ARGUMENTS_LEN		100		// Lunghezza massima del buffer degli argomenti
 
 #define HTTP_VERSION		"HTTP/1.1"
@@ -55,9 +55,9 @@ struct http_headers
 struct http_request
 {
 	char method[8];
-	char filename[HTTP_ARGUMENTS_LEN];
+	char uri[HTTP_HEADER_FIELD_LEN];
 	struct http_headers headers;	
-	char arguments[HTTP_ARGUMENTS_LEN];
+	char *message_body;
 };
 
 struct http_response

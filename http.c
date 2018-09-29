@@ -18,7 +18,7 @@ void http_initialize (int debug)
 //int http_parse_request (char *request_buffer, char *request_type, char *requested_file, char *request_arguments)
 int http_parse_request (char *request_buffer, struct http_request *request)
 {
-	char line[100];
+/*	char line[100];
 	
 	char *split_line, *split_line_prev;
 	char *split_column;
@@ -136,7 +136,7 @@ int http_parse_request (char *request_buffer, struct http_request *request)
 		
 	} while (split_line != NULL);
 
-	return 0;
+*/	return 0;
 }
 
 int http_generate_response (char *response_buffer, struct http_response response)
@@ -180,22 +180,22 @@ Response	= Status-Line
 	if (response.headers.connection)
 		strcat (response_buffer, "Connection: close\r\n");
 
+	/* nella response non ci sta mica Host:
 	if (response.headers.host[0] != 0)
 	{
 		sprintf (string, "Host: %s\r\n", response.headers.host);
 		strcat (response_buffer, string);
 	}
+	*/
+
+	//Da inserire invece header Server:
 
 	if (response.message_body != NULL)
 	{
-		sprintf (string, "Content-Lenght: " _PRINTF_SSIZE_T "\r\n", strlen (response.message_body));
+		sprintf (string, "Content-Lenght: " _PRINTF_SSIZE_T "\r\n\r\n", strlen (response.message_body));
 		strcat (response_buffer, string);
-	}
-
-	strcat (response_buffer, "\r\n");
-	
-	if (response.message_body != NULL)
 		strcat (response_buffer, response.message_body);
+	}
 	
 	return 0;
 }
